@@ -62,8 +62,7 @@ class Food:
 
     def random_position(self):
         # Logic to get a random position
-        grid_size = 10
-        max_position = 600 - grid_size
+        max_position = 600
         while True:
             x = random.randint(0, max_position)
             y = random.randint(0, max_position)
