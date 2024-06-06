@@ -69,7 +69,7 @@ def draw(window, line_color):
         x = i * WIDTH // 3
         pygame.draw.line(window, line_color, (x, 0), (x, HEIGHT), width=4)
 
-    pygame.display.update()
+    
 
 def draw_markers():
     x_pos = 0
