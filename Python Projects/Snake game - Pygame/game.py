@@ -52,8 +52,8 @@ class Food:
         grid_size = 10
         max_position = 600 - grid_size
         while True:
-            x = random.randint(0, max_position // grid_size) * grid_size
-            y = random.randint(0, max_position // grid_size) * grid_size
+            x = random.randint(0, max_position)
+            y = random.randint(0, max_position)
             if (x, y) not in self.snake_body:
                 return (x, y)
 
