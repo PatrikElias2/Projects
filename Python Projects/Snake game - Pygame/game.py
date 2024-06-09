@@ -6,6 +6,10 @@ import random
 pygame.init()
 pygame.mixer.init()
 
+# Icon
+img = pygame.image.load('icon/snake.png')
+pygame.display.set_icon(img)
+
 # Window
 WIDTH = 600
 HEIGHT = 600
@@ -173,7 +177,7 @@ class Game:
         window.blit(game_over_text, ((WIDTH - game_over_text.get_width()) // 2, HEIGHT // 2 - 50))
         
         # Button for Play Again and Main menu
-        play_again_rect = pygame.Rect((WIDTH - play_again_text.get_width() - 20) // 2, HEIGHT // 2 + 20,
+        play_again_rect = pygame.Rect((WIDTH - play_again_text.get_width() - 20) // 2, HEIGHT // 2 + 70,
                                     play_again_text.get_width() + 20, play_again_text.get_height() + 10)
         
         pygame.draw.rect(window, bg_color, play_again_rect)
