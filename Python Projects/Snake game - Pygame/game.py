@@ -32,7 +32,10 @@ best_score = 0
 big_font = pygame.font.Font('font/font.otf', 64)
 small_font = pygame.font.Font('font/font.otf', 16)
 
-
+# Load and play background music
+pygame.mixer.music.load('music/bg_music.wav')  # Replace with the path to your music file
+pygame.mixer.music.play(-1)  # Play the music in a loop
+pygame.mixer.music.set_volume(0.1)
 
 class Snake:
     def __init__(self):
@@ -67,6 +70,9 @@ class Food:
     def __init__(self, snake_body):
         self.snake_body = snake_body
         self.position = self.random_position()
+        self.food_image = pygame.image.load("img/food.png")
+        self.food_image = pygame.transform.scale(self.food_image, (food_rect_size, food_rect_size))  # Scale the image to the size of the food rectangle
+
 
 
     def random_position(self):
@@ -80,8 +86,8 @@ class Food:
                 return (x, y)
 
     def draw(self, window):
-        food_rect = pygame.Rect(self.position[0], self.position[1], food_rect_size, food_rect_size)
-        pygame.draw.rect(window, (255, 0, 0), food_rect)
+        #food_rect = pygame.Rect(self.position[0], self.position[1], food_rect_size, food_rect_size)
+        window.blit(self.food_image, self.position)
     
     def respawn(self):
         self.position = self.random_position()
@@ -95,6 +101,10 @@ class Game:
         self.best_score = best_score
         self.move_counter = 0
         self.move_delay = 4  # Change this value to control the speed (higher = slower)
+        self.eat_sound = pygame.mixer.Sound("music/eat.mp3")
+        self.wall_hit_sound = pygame.mixer.Sound("music/wall.mp3")
+        self.body_hit_sound = pygame.mixer.Sound("music/body.wav")
+
 
     def draw_score(self):
         score_text = small_font.render(f'Score: {self.score}', True, black_color_bg)
@@ -115,16 +125,21 @@ class Game:
         if self.snake.body[0] == self.food.position:
             self.snake.grow()
             self.food.respawn()
+            self.eat_sound.play()
             self.score += 5
             if self.score > self.best_score:
                 self.best_score = self.score
 
+
         # Check collision with window boundaries
         if head_x < 0 or head_x >= WIDTH or head_y < 0 or head_y >= HEIGHT:
+            self.wall_hit_sound.play()
             self.game_over()
+            
 
         # Check collision with the snake's body
         if (head_x, head_y) in self.snake.body[1:]:
+            self.body_hit_sound.play()
             self.game_over()
 
     def update(self):
@@ -135,7 +150,9 @@ class Game:
             self.move_counter = 0
 
     def game_over(self):
-        # For simplicity, we will just reset the game
+        self.draw_score()
+        pygame.display.update()
+        pygame.time.wait(1000)
         self.score = 0
         self.snake = Snake()
         self.food = Food(self.snake.body)
