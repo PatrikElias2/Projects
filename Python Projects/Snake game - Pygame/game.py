@@ -21,16 +21,18 @@ snake_head_color = (255, 0, 0)
 snake_body_color = (0, 255, 0)
 black_color_bg = (0, 0, 0)
 
-# Fonts
-big_font = pygame.font.Font('font/ARCADECLASSIC.TTF', 64)
-big_font = pygame.font.Font('font/ARCADECLASSIC.TTF', 32)
-
 # variables
 snake_rect_size = 10
 food_rect_size = 10
 border_size = 1  # Size of the black border around the head and body
 score = 0
 best_score = 0
+
+# Fonts
+big_font = pygame.font.Font('font/font.otf', 64)
+small_font = pygame.font.Font('font/font.otf', 16)
+
+
 
 class Snake:
     def __init__(self):
@@ -94,9 +96,16 @@ class Game:
         self.move_counter = 0
         self.move_delay = 4  # Change this value to control the speed (higher = slower)
 
+    def draw_score(self):
+        score_text = small_font.render(f'Score: {self.score}', True, black_color_bg)
+        best_score_text = small_font.render(f'Best Score: {self.best_score}', True, black_color_bg)
+        window.blit(score_text, (10, 40))
+        window.blit(best_score_text, (10, 10))
+    
     def draw(self):
         self.snake.draw(window)
         self.food.draw(window)
+        self.draw_score()
 
     def check_collision(self):
         # x and y position of snake's head
@@ -107,6 +116,8 @@ class Game:
             self.snake.grow()
             self.food.respawn()
             self.score += 5
+            if self.score > self.best_score:
+                self.best_score = self.score
 
         # Check collision with window boundaries
         if head_x < 0 or head_x >= WIDTH or head_y < 0 or head_y >= HEIGHT:
@@ -125,8 +136,11 @@ class Game:
 
     def game_over(self):
         # For simplicity, we will just reset the game
+        self.score = 0
         self.snake = Snake()
         self.food = Food(self.snake.body)
+    
+    
 
 game = Game()
 
