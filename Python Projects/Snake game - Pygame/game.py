@@ -21,10 +21,16 @@ snake_head_color = (255, 0, 0)
 snake_body_color = (0, 255, 0)
 black_color_bg = (0, 0, 0)
 
+# Fonts
+big_font = pygame.font.Font('font/ARCADECLASSIC.TTF', 64)
+big_font = pygame.font.Font('font/ARCADECLASSIC.TTF', 32)
+
 # variables
 snake_rect_size = 10
 food_rect_size = 10
 border_size = 1  # Size of the black border around the head and body
+score = 0
+best_score = 0
 
 class Snake:
     def __init__(self):
@@ -38,6 +44,7 @@ class Snake:
         self.body = [new_head] + self.body[:-1]
 
     def grow(self):
+        # Add a new segment to the snake's body at the position of the last segment
         self.body.append(self.body[-1])
 
     def draw(self, window):
@@ -62,36 +69,64 @@ class Food:
 
     def random_position(self):
         # Logic to get a random position
-        max_position = 600
+        grid_size = 10
+        max_position = 600 - grid_size
         while True:
-            x = random.randint(0, max_position)
-            y = random.randint(0, max_position)
+            x = random.randint(0, max_position // grid_size) * grid_size
+            y = random.randint(0, max_position // grid_size) * grid_size
             if (x, y) not in self.snake_body:
                 return (x, y)
 
     def draw(self, window):
         food_rect = pygame.Rect(self.position[0], self.position[1], food_rect_size, food_rect_size)
         pygame.draw.rect(window, (255, 0, 0), food_rect)
-
     
+    def respawn(self):
+        self.position = self.random_position()
+
 
 class Game:
     def __init__(self):
         self.snake = Snake()
         self.food = Food(self.snake.body)
+        self.score = score
+        self.best_score = best_score
         self.move_counter = 0
-        self.move_delay = 2  # Change this value to control the speed (higher = slower)
+        self.move_delay = 4  # Change this value to control the speed (higher = slower)
 
     def draw(self):
         self.snake.draw(window)
         self.food.draw(window)
 
+    def check_collision(self):
+        # x and y position of snake's head
+        head_x, head_y = self.snake.body[0]
+
+        # Check if the snake's head is at the same position as the food
+        if self.snake.body[0] == self.food.position:
+            self.snake.grow()
+            self.food.respawn()
+            self.score += 5
+
+        # Check collision with window boundaries
+        if head_x < 0 or head_x >= WIDTH or head_y < 0 or head_y >= HEIGHT:
+            self.game_over()
+
+        # Check collision with the snake's body
+        if (head_x, head_y) in self.snake.body[1:]:
+            self.game_over()
+
     def update(self):
         self.move_counter += 1
         if self.move_counter >= self.move_delay:
             self.snake.move()
+            self.check_collision()
             self.move_counter = 0
-            # Future: Add collision detection, growth logic, etc.
+
+    def game_over(self):
+        # For simplicity, we will just reset the game
+        self.snake = Snake()
+        self.food = Food(self.snake.body)
 
 game = Game()
 
@@ -104,7 +139,7 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-         # Optional: Add controls for changing direction
+        # Add controls for changing direction
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_UP and game.snake.direction != (0, 1):
                 game.snake.direction = (0, -1)
