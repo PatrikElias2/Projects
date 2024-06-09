@@ -29,7 +29,8 @@ score = 0
 best_score = 0
 
 # Fonts
-big_font = pygame.font.Font('font/font.otf', 64)
+big_font = pygame.font.Font('font/font.otf', 48)
+medium_font = pygame.font.Font('font/font.otf', 32)
 small_font = pygame.font.Font('font/font.otf', 16)
 
 # Load and play background music
@@ -150,13 +151,38 @@ class Game:
             self.move_counter = 0
 
     def game_over(self):
-        self.draw_score()
+        self.game_over_flag = True
+        self.draw_game_over_screen()
+
+    def draw_game_over_screen(self):
+        game_over_text = big_font.render('Game Over', True, black_color_bg)
+        play_again_text = medium_font.render('Play Again', True, black_color_bg)
+        window.blit(game_over_text, ((WIDTH - game_over_text.get_width()) // 2, HEIGHT // 2 - 50))
+        
+        # Button for Play Again
+        play_again_rect = pygame.Rect((WIDTH - play_again_text.get_width() - 20) // 2, HEIGHT // 2 + 20,
+                                      play_again_text.get_width() + 20, play_again_text.get_height() + 10)
+        pygame.draw.rect(window, bg_color, play_again_rect)
+        window.blit(play_again_text, (play_again_rect.x + 10, play_again_rect.y + 5))
+        
         pygame.display.update()
-        pygame.time.wait(1000)
+        
+        waiting_for_restart = True
+        while waiting_for_restart:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    exit()
+                elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    if play_again_rect.collidepoint(event.pos):
+                        self.restart_game()
+                        waiting_for_restart = False
+
+    def restart_game(self):
         self.score = 0
         self.snake = Snake()
         self.food = Food(self.snake.body)
-    
+        self.game_over_flag = False
     
 
 game = Game()
